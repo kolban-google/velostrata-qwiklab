@@ -131,3 +131,69 @@ resource "aws_default_security_group" "default" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+resource "aws_cloudformation_stack" "qwiklab" {
+	name = "qwiklab"
+	capabilities = ["CAPABILITY_IAM"]
+	parameters = {
+		VPC = "${aws_vpc.qwiklab.id}"
+	}
+
+	template_body = <<STACK
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  "Description" : "Velostrata v3 PoC CloudFormation template (VxCF-GA-V3-IAMONLY.rev1)",
+  "Parameters" : {
+    "VPC" : {
+      "Type" : "AWS::EC2::VPC::Id",
+      "Description" : "The VPC to use"
+    }
+  },
+  "Resources" : {
+    "VelosMgrGroup" : {
+      "Type" : "AWS::IAM::Group",
+      "Properties" : {
+        "Path" : "/VelostrataMgr/"
+      }
+    },
+    "VelosMgrGroupPolicy" : {
+      "Type" : "AWS::IAM::Policy",
+      "Properties" : {
+        "PolicyName" : "VelosMgrPolicy",
+        "PolicyDocument" : {
+          "Statement" : [
+            {
+            "Resource" : "*",
+            "Action" : [ "ec2:RunInstances",
+						 "ec2:StartInstances",
+						 "ec2:StopInstances",
+						 "ec2:RebootInstances",
+						 "ec2:AttachVolume",
+						 "ec2:DetachVolume",
+						 "ec2:Describe*",
+						 "ec2:CreateTags",
+						 "ec2:GetConsoleOutput",
+						 "ec2:ModifyInstanceAttribute"],
+            "Effect" : "Allow"
+          }, {
+            "Condition" : {
+              "StringEquals" : {
+                "ec2:ResourceTag/ManagedByVelostrata" : "Yes"
+              }
+            },
+            "Resource" : "*",
+            "Action" : "ec2:TerminateInstances",
+            "Effect" : "Allow"
+          }],
+          "Version" : "2012-10-17"
+        },
+        "Groups" : [ {
+          "Ref" : "VelosMgrGroup"
+        } ]
+      }
+    }
+  }
+}
+
+STACK
+}
