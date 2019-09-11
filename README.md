@@ -1,2 +1,3 @@
 # velostrata-qwiklab
-Tests for Velostrata Qwiklab
+These are the Terraform scripts for creating the Velostrata lab environment.  At a high level they create a peer AWS and GCP
+environment including an active VPN between them.

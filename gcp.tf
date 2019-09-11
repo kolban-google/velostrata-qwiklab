@@ -1,5 +1,4 @@
 provider "google" {
-	project = "kolban-velostrata-aws"
 }
 
 // Create the GCP public IP address for the VPN at GCP.
