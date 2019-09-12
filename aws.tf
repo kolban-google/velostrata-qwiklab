@@ -145,6 +145,58 @@ resource "aws_default_security_group" "default" {
   }
 }
 
+resource "aws_iam_group" "qwiklab" {
+  name = "VelosMgrGroup"
+  path = "/VelostrataMgr/"
+}
+
+resource "aws_iam_group_policy" "qwiklab" {
+  name  = "VelosMgrGroupPolicy"
+  group = "${aws_iam_group.qwiklab.id}"
+
+  policy = <<EOF
+{
+	"Version": "2012-10-17",
+	"Statement" : [
+	{
+	    "Resource" : "*",
+    	"Action" : [
+			"ec2:RunInstances",
+			"ec2:StartInstances",
+			"ec2:StopInstances",
+			"ec2:RebootInstances",
+			"ec2:AttachVolume",
+			"ec2:DetachVolume",
+			"ec2:Describe*",
+			"ec2:CreateTags",
+			"ec2:GetConsoleOutput",
+			"ec2:ModifyInstanceAttribute"
+		],
+		"Effect" : "Allow"
+	},
+	{
+		"Condition" : {
+			"StringEquals" : {
+				"ec2:ResourceTag/ManagedByVelostrata" : "Yes"
+			}
+		},
+		"Resource" : "*",
+		"Action" : "ec2:TerminateInstances",
+		"Effect" : "Allow"
+	}]
+}
+EOF
+}
+
+resource "aws_iam_user_group_membership" "qwiklab" {
+  user = "awsstudent"
+
+  groups = [
+    "${aws_iam_group.qwiklab.name}"
+  ]
+}
+
+/*
 resource "aws_cloudformation_stack" "qwiklab" {
 	name = "qwiklab"
 	capabilities = ["CAPABILITY_IAM"]
@@ -210,3 +262,4 @@ resource "aws_cloudformation_stack" "qwiklab" {
 
 STACK
 }
+*/
