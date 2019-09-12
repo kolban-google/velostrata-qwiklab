@@ -46,6 +46,13 @@ resource "aws_subnet" "qwiklab" {
 	}
 }
 
+resource "aws_internet_gateway" "qwiklab" {
+	vpc_id = "${aws_vpc.qwiklab.id}"
+	tags = {
+		Name = "QwikLab"
+	}
+}
+
 // Create the Virtual Private Gateway
 resource "aws_vpn_gateway" "qwiklab" {
 	vpc_id = "${aws_vpc.qwiklab.id}"
@@ -92,10 +99,16 @@ resource "aws_instance" "mytest" {
 	}
 }
 
-resource "aws_route" "qwiklab" {
+resource "aws_route" "qwiklab_vpn" {
     route_table_id = "${aws_vpc.qwiklab.main_route_table_id}"
     destination_cidr_block = "10.128.0.0/20"
     gateway_id = "${aws_vpn_gateway.qwiklab.id}"
+}
+
+resource "aws_route" "qwiklab_internet" {
+    route_table_id = "${aws_vpc.qwiklab.main_route_table_id}"
+    destination_cidr_block = "0.0.0.0/0"
+    gateway_id = "${aws_internet_gateway.qwiklab.id}"
 }
 
 /*
