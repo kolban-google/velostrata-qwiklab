@@ -63,3 +63,28 @@ resource "google_compute_route" "qwiklab" {
 	priority = 1000
 	next_hop_vpn_tunnel = "${google_compute_vpn_tunnel.gcp-tunnel1.self_link}"
 }
+
+/*
+ * Create the firewall rules.
+ */
+resource "google_compute_firewall" "https" {
+  name    = "https"
+  network = "default"
+  allow {
+    protocol = "tcp"
+    ports    = ["443"]
+  }
+  direction = "INGRESS"
+  source_ranges = ["0.0.0.0/0"]
+}
+
+resource "google_compute_firewall" "AWS" {
+  name    = "aws"
+  network = "default"
+  allow {
+    protocol = "tcp"
+    ports    = ["1-65535"]
+  }
+  direction = "INGRESS"
+  source_ranges = ["10.0.0.0/16"]
+}
