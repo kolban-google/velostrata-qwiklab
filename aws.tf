@@ -88,14 +88,14 @@ resource "aws_vpn_connection_route" "gcp_route" {
 	vpn_connection_id = "${aws_vpn_connection.aws-vpn-connection1.id}"
 }
 
-resource "aws_instance" "mytest" {
+resource "aws_instance" "sample-vm" {
 	instance_type = "t2.micro"
 	ami = "ami-07d0cf3af28718ef8"
 	subnet_id = "${aws_subnet.qwiklab.id}"
 	associate_public_ip_address = true
 	key_name = var.key_pair_name
 	tags = {
-		Name = "mytest"
+		Name = "sample-vm"
 	}
 }
 
